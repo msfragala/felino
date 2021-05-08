@@ -1,13 +1,13 @@
 const esbuild = require('esbuild');
 
 esbuild.build({
-  entryPoints: ['src/cli.js', 'src/api.js'],
+  entryPoints: ['src/cli.ts', 'src/api.ts'],
   bundle: true,
   outdir: 'dist',
   sourcemap: false,
-  logLevel: 'info',
+  logLevel: process.argv.includes('--silent') ? 'silent' : 'info',
   platform: 'node',
-  target: 'node14.16.1',
+  target: 'node12',
   format: 'cjs',
   watch: process.argv.includes('--watch'),
 });

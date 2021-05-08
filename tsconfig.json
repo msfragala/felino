@@ -1,0 +1,16 @@
+{
+  "exclude": ["node_modules"],
+  "include": ["src/api.ts"],
+  "compilerOptions": {
+    "esModuleInterop": true,
+    "lib": ["ES2020"],
+    "module": "CommonJS",
+    "moduleResolution": "Node",
+    "resolveJsonModule": true,
+    "strict": true,
+    "target": "ES2020",
+    "emitDeclarationOnly": true,
+    "declarationDir": "dist",
+    "declaration": true
+  }
+}
