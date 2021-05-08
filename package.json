@@ -1,0 +1,54 @@
+{
+  "name": "felino",
+  "version": "0.0.0",
+  "repository": "git@github.com:msfragala/felino.git",
+  "author": "Mitchell Fragala <ms.fragala@gmail.com>",
+  "license": "MIT",
+  "scripts": {
+    "build": "node scripts/build.js",
+    "dev": "yarn build --watch",
+    "test": "ava tests/*.spec.js",
+    "git-pre-commit": ".githooks/pre-commit"
+  },
+  "source": "./src/felino.js",
+  "main": "./dist/felino.js",
+  "module": "./dist/felino.esm.js",
+  "felino": {
+    "rules": [
+      {
+        "files": [
+          "./tests"
+        ],
+        "format": "kebab",
+        "forbid": [
+          "index.*",
+          "index.config"
+        ]
+      }
+    ]
+  },
+  "prettier": {
+    "quoteProps": "consistent",
+    "singleQuote": true,
+    "semi": true
+  },
+  "ava": {
+    "require": [
+      "esm"
+    ]
+  },
+  "devDependencies": {
+    "@vercel/git-hooks": "^1.0.0",
+    "ava": "^3.15.0",
+    "esbuild": "^0.11.20",
+    "esm": "^3.2.25",
+    "execa": "^5.0.0",
+    "fs-extra": "^10.0.0",
+    "prettier": "^2.2.1",
+    "tempy": "^1.0.1"
+  },
+  "volta": {
+    "node": "16.1.0",
+    "yarn": "1.22.10"
+  }
+}
