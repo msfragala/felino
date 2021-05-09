@@ -1,20 +1,18 @@
-import { ParsedPath } from 'path';
+import {
+  FelinoConfig,
+  FelinoOptions,
+  Logger,
+  Rule,
+  RuleFormat,
+  Validator,
+} from './lib/types';
+
 import cases from 'change-case';
+import { createLogger } from './lib/logger';
 import globby from 'globby';
 import matcher from 'matcher';
 import path from 'path';
 import { performance } from 'perf_hooks';
-
-export type CasePattern = 'kebab' | 'camel' | 'constant' | 'pascal' | 'snake';
-export type Validator = (name: string, file: ParsedPath) => Promise<boolean>;
-export type RuleFormat = CasePattern | RegExp | Validator | string;
-
-export interface Rule {
-  files: string[];
-  ignore?: string[];
-  format?: RuleFormat;
-  forbid?: string[];
-}
 
 export interface RuleCheckResult {
   errorCount: number;
@@ -24,12 +22,9 @@ export interface RuleCheckResult {
 
 export interface FileResult {
   file: string;
+  format?: RuleFormat;
   valid: boolean | undefined;
   forbidMatches: string[];
-}
-
-export interface FelinoConfig {
-  rules: Rule[];
 }
 
 export interface CheckResult {
@@ -39,15 +34,24 @@ export interface CheckResult {
   duration: number;
 }
 
-export async function check(options: FelinoConfig): Promise<CheckResult> {
+const defaultOptions: FelinoOptions = {
+  color: true,
+  logLevel: 'info',
+};
+
+export async function check(
+  config: FelinoConfig,
+  options: FelinoOptions = defaultOptions,
+  logger: Logger = createLogger(options)
+): Promise<CheckResult> {
   const start = performance.now();
-  const rules = options.rules ?? [];
+  const rules = config.rules ?? [];
   const errorPaths: string[] = [];
 
   let errorCount = 0;
   const checks = await Promise.all(
     rules.map(async (r) => {
-      const result = await runRuleCheck(r);
+      const result = await runRuleCheck(r, logger);
       errorCount += result.errorCount;
       errorPaths.push(...result.errorPaths);
       return result;
@@ -62,15 +66,30 @@ export async function check(options: FelinoConfig): Promise<CheckResult> {
   };
 }
 
-async function runRuleCheck(rule: Rule): Promise<RuleCheckResult> {
-  const files = await globby(rule.files, { ignore: rule.ignore ?? [] });
-  const validator = resolveValidator(rule.format);
+const automaticIgnore = ['node_modules'];
+
+async function runRuleCheck(
+  rule: Rule,
+  logger: Logger
+): Promise<RuleCheckResult> {
+  const ignore = rule.ignore ?? [];
+  const files = await globby(rule.files, {
+    ignore: [...automaticIgnore, ...ignore],
+  });
+
+  if (!files.length) {
+    logger.error(`No files found for glob ${JSON.stringify(rule.files)}:`);
+    process.exit(1);
+  }
+
+  const validator = resolveValidator(rule.format, logger);
   const results: Record<string, FileResult> = {};
   const errorPaths: string[] = [];
   let errorCount = 0;
 
   await Promise.all(
-    files.map(async (file) => {
+    files.map(async (f) => {
+      const file = path.normalize(f);
       const parsed = path.parse(file);
       const valid = await validator?.(parsed.name, parsed);
       const forbidMatches = matchForbidden(parsed.base, rule.forbid);
@@ -82,6 +101,7 @@ async function runRuleCheck(rule: Rule): Promise<RuleCheckResult> {
 
       results[file] = {
         file,
+        format: rule.format,
         valid,
         forbidMatches,
       };
@@ -104,26 +124,33 @@ const caseFormatters: { [key: string]: Function } = {
   snake: (name: string) => cases.snakeCase(name),
 };
 
-function resolveValidator(format?: RuleFormat): Validator | undefined {
+function resolveValidator(
+  format: RuleFormat | undefined,
+  logger: Logger
+): Validator | undefined {
   if (!format) return undefined;
 
   if (typeof format === 'function') {
+    logger.debug('Rule format: function');
     return format;
   }
 
   if (format instanceof RegExp) {
+    logger.debug(`Rule format: regex literal — ${format}`);
     return async (name) => format.test(name);
   }
 
   const caseFormatter = caseFormatters[format];
 
   if (caseFormatter) {
+    logger.debug(`Rule format: ${format} (built-in)`);
     return async (name) => {
       const [namePart] = name.split('.');
       return namePart === caseFormatter(namePart);
     };
   }
 
+  logger.debug(`Rule format: regex string — ${format}`);
   const rx = new RegExp(format);
   return async (name) => rx.test(name);
 }
