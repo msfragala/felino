@@ -8,6 +8,8 @@
     "build": "node scripts/build.js",
     "dev": "yarn build --watch",
     "test": "ava",
+    "prerelease": "rm -rf dist && yarn build",
+    "release": "np",
     "lint:prettier": "prettier . --list-different",
     "git-pre-commit": ".githooks/pre-commit"
   },
@@ -40,6 +42,9 @@
       "esm"
     ]
   },
+  "files": [
+    "dist"
+  ],
   "dependencies": {
     "change-case": "^4.1.2",
     "cosmiconfig": "^7.0.0",
@@ -58,6 +63,7 @@
     "esm": "^3.2.25",
     "execa": "^5.0.0",
     "fs-extra": "^10.0.0",
+    "np": "^7.5.0",
     "prettier": "^2.2.1",
     "tempy": "^1.0.1",
     "typescript": "^4.2.4"

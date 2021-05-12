@@ -9,5 +9,6 @@ esbuild.build({
   platform: 'node',
   target: 'node12',
   format: 'cjs',
+  minify: true,
   watch: process.argv.includes('--watch'),
 });
