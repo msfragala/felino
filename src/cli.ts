@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 import { FelinoOptions, LogLevel } from './lib/types';
-
+import ms from 'pretty-ms';
 import { check } from './api';
 import { createLogger } from './lib/logger';
 import { loadConfig } from './lib/load-config';
@@ -58,7 +58,9 @@ app
 
     if (result.errorCount > 0) {
       logger.log(reportError(result));
-      process.exit(1);
+      process.exitCode = 1;
     }
+
+    logger.log(`✨ Done in ${ms(result.duration)}`);
   })
   .parse(process.argv);
