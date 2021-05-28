@@ -40,24 +40,24 @@ app
     logger.debug(`Option "config": ${options.config ?? '(empty)'}`);
     logger.debug(`Option "logLevel": ${options.logLevel}`);
 
-    const { config, configFile } = await loadConfig(options, logger).catch(
-      (error) => {
-        logger.error('Error loading configuration', error);
-        process.exit(1);
-      }
-    );
+    const config = await loadConfig(options, logger).catch((error) => {
+      logger.panic('Error loading configuration', error);
+    });
 
     if (config) {
       logger.debug('Configuration', config);
+    } else if (options.config) {
+      logger.panic(`Unable to load custom config file: ${options.config}`);
     } else {
-      logger.error(`No configuration found: ${configFile}`);
-      process.exit(1);
+      logger.panic(
+        'No configuration found. For helping configuring Felino, check out the documentation here: https://github.com/msfragala/felino#configuration'
+      );
     }
 
     const result = await check(config, options, logger);
 
     if (result.errorCount > 0) {
-      logger.info(reportError(result));
+      logger.log(reportError(result));
       process.exit(1);
     }
   })

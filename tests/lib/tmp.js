@@ -16,6 +16,7 @@ export async function tmpConfig({
   dir = tempy.directory(),
   name = '.felinorc.json',
 }) {
+  if (!config) return '';
   const content = typeof config === 'string' ? config : JSON.stringify(config);
   const file = path.join(dir, name);
   await fs.outputFile(file, content);
@@ -66,7 +67,7 @@ export async function tmpSetup({ config, configName, files }) {
  * @param {object} options
  * @param {import('../../dist/api').FelinoConfig} options.config
  * @param {string[]} options.files
- * @param {string[]} [options.arguments]
+ * @param {string[]} [options.args]
  * @param {string} [options.configName]
  * @returns {Promise<import('execa').ExecaChildProcess>}
  */

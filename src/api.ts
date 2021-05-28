@@ -1,18 +1,19 @@
 import {
   FelinoConfig,
   FelinoOptions,
-  Logger,
   Rule,
   RuleFormat,
   Validator,
 } from './lib/types';
 
 import cases from 'change-case';
-import { createLogger } from './lib/logger';
+import { createLogger, Logger } from './lib/logger';
 import globby from 'globby';
 import matcher from 'matcher';
 import path from 'path';
 import { performance } from 'perf_hooks';
+import { validateConfig } from './lib/validate-config';
+import kleur from 'kleur';
 
 export interface RuleCheckResult {
   errorCount: number;
@@ -47,6 +48,16 @@ export async function check(
   const start = performance.now();
   const rules = config.rules ?? [];
   const errorPaths: string[] = [];
+
+  const configErrors = validateConfig(config);
+
+  if (configErrors.length > 0) {
+    logger.error('Your configuration is invaliad:');
+    configErrors.forEach((error) => {
+      logger.error(kleur.gray(error.message));
+    });
+    process.exit(1);
+  }
 
   let errorCount = 0;
   const checks = await Promise.all(

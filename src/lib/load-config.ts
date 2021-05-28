@@ -1,27 +1,27 @@
-import { FelinoConfig, FelinoOptions, Logger } from './types';
+import { FelinoOptions } from './types';
 
 import { cosmiconfig } from 'cosmiconfig';
 import path from 'path';
+import { Logger } from './logger';
 
 const explorer = cosmiconfig('felino');
-
-interface ConfigResult {
-  config: FelinoConfig;
-  configFile: string;
-}
 
 export async function loadConfig(
   options: FelinoOptions,
   logger: Logger
-): Promise<ConfigResult> {
+): Promise<any> {
   if (options.config) {
     const configPath = path.resolve(options.config);
     logger.debug(`Loading custom configuration: ${configPath}`);
-    const cosmic = await explorer.load(configPath);
-    return { config: cosmic.config, configFile: cosmic.filepath };
+    const result = await explorer.load(configPath);
+
+    return result?.config;
   }
 
-  const cosmic = await explorer.search();
-  logger.debug(`Using configuration from: ${cosmic.filepath}`);
-  return { config: cosmic.config, configFile: cosmic.filepath };
+  const result = await explorer.search();
+
+  if (result?.config) {
+    logger.debug(`Using configuration from: ${result.filepath}`);
+    return result.config;
+  }
 }

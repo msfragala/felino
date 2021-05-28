@@ -22,9 +22,3 @@ export interface Rule {
 export interface FelinoConfig {
   rules: Rule[];
 }
-
-export interface Logger {
-  info(message: string): void;
-  error(message: string, error?: Error): void;
-  debug(message: string, details?: any): void;
-}
