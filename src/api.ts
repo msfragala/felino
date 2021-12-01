@@ -52,9 +52,9 @@ export async function check(
   const configErrors = validateConfig(config);
 
   if (configErrors.length > 0) {
-    logger.error('Your configuration is invaliad:');
+    logger.error('Your configuration is invalid:');
     configErrors.forEach((error) => {
-      logger.error(kleur.gray(error.message));
+      logger.error(kleur.white(error));
     });
     process.exit(1);
   }

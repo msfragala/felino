@@ -1,4 +1,4 @@
-import { tmpFiles, tmpSetup } from './lib/tmp';
+import { tmpFiles } from './lib/tmp';
 
 import { check } from '../api';
 import test from 'ava';

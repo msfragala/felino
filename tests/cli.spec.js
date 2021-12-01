@@ -1,7 +1,4 @@
-import { tmpCLI, tmpDir, tmpFiles } from './lib/tmp';
-
-import execa from 'execa';
-import path from 'path';
+import { tmpCLI } from './lib/tmp';
 import test from 'ava';
 
 test('Exit code is 0 when no failures', async (t) => {

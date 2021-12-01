@@ -10,6 +10,7 @@
     "build:esbuild": "node scripts/build.js",
     "build:ts": "tsc",
     "dev": "yarn build --watch",
+    "pretest": "yarn build:esbuild",
     "test": "ava",
     "prerelease": "rm -rf dist && yarn build",
     "release": "np",
@@ -24,6 +25,7 @@
   "felino": {
     "rules": [
       {
+        "directories": [],
         "files": [
           "./**/*.js",
           "./**/*.ts"
@@ -53,7 +55,6 @@
     "cosmiconfig": "^7.0.0",
     "dlv": "^1.1.3",
     "globby": "^11.0.3",
-    "joi": "^17.4.0",
     "kleur": "^4.1.4",
     "matcher": "^4.0.0",
     "sade": "^1.7.4"

@@ -1,7 +1,4 @@
-import { tmpCLI, tmpDir, tmpFiles } from './lib/tmp';
-
-import execa from 'execa';
-import path from 'path';
+import { tmpCLI } from './lib/tmp';
 import test from 'ava';
 
 test('Can load custom JSON config', async (t) => {
